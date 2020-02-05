@@ -1,9 +1,10 @@
-module github.com/hashicorp/consul-esm
+module github.com/lornasong/consul-esm
 
 go 1.12
 
 require (
 	github.com/hashicorp/consul v1.6.1
+	github.com/hashicorp/consul-esm v0.3.3
 	github.com/hashicorp/consul/api v1.2.0
 	github.com/hashicorp/consul/sdk v0.2.0
 	github.com/hashicorp/go-multierror v1.0.0
