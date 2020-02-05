@@ -123,7 +123,7 @@ func (a *Agent) Run() error {
 	wg.Wait()
 
 	// Clean up.
-	if err := a.client.Agent().ServiceDeregister(a.serviceID()); err != nil {
+	if err := a.client.Agent().ServiceDeregister(a.ServiceID()); err != nil {
 		a.logger.Printf("[WARN] Failed to deregister service: %v", err)
 	}
 
@@ -137,14 +137,14 @@ func (a *Agent) Shutdown() {
 	}
 }
 
-func (a *Agent) serviceID() string {
+func (a *Agent) ServiceID() string {
 	return fmt.Sprintf("%s:%s", a.config.Service, a.id)
 }
 
 // register is used to register this agent with Consul service discovery.
 func (a *Agent) register() error {
 	service := &api.AgentServiceRegistration{
-		ID:   a.serviceID(),
+		ID:   a.ServiceID(),
 		Name: a.config.Service,
 	}
 	if a.config.Tag != "" {
@@ -161,7 +161,7 @@ func (a *Agent) register() error {
 // runRegister is a long-running goroutine that ensures this agent is registered
 // with Consul's service discovery. It will run until the shutdownCh is closed.
 func (a *Agent) runRegister() {
-	serviceID := a.serviceID()
+	serviceID := a.ServiceID()
 	for {
 	REGISTER_CHECK:
 		select {
@@ -191,7 +191,7 @@ func (a *Agent) runRegister() {
 // runTTL is a long-running goroutine that registers an "agent alive" TTL health
 // check and services it periodically. It will run until the shutdownCh is closed.
 func (a *Agent) runTTL() {
-	serviceID := a.serviceID()
+	serviceID := a.ServiceID()
 	ttlID := fmt.Sprintf("%s:agent-ttl", serviceID)
 
 REGISTER:
@@ -272,7 +272,7 @@ func (a *Agent) watchNodeList() {
 		}
 
 		// Get the KV entry for this agent's node list.
-		kv, meta, err := a.client.KV().Get(a.kvNodeListPath()+a.serviceID(), opts)
+		kv, meta, err := a.client.KV().Get(a.kvNodeListPath()+a.ServiceID(), opts)
 		if err != nil {
 			a.logger.Printf("[WARN] Error querying for node watch list: %v", err)
 			continue
