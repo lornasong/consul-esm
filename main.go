@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/lornasong/consul-esm/monitor"
+
 	"github.com/hashicorp/consul-esm/version"
 	"github.com/hashicorp/consul/command/flags"
 	"github.com/hashicorp/consul/logger"
@@ -50,7 +52,7 @@ func main() {
 	}
 
 	// Build the config.
-	config, err := BuildConfig([]string(configFiles))
+	config, err := monitor.BuildConfig([]string(configFiles))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(ExitCodeError)
@@ -70,7 +72,7 @@ func main() {
 	logger := log.New(logOutput, "", log.LstdFlags)
 	gatedWriter.Flush()
 
-	agent, err := NewAgent(config, logger)
+	agent, err := monitor.NewAgent(config, logger)
 	if err != nil {
 		panic(err)
 	}
@@ -78,7 +80,7 @@ func main() {
 	// Set up shutdown and signal handling.
 	signalCh := make(chan os.Signal, 10)
 	signal.Notify(signalCh)
-	go handleSignals(agent.logger, signalCh, agent)
+	go handleSignals(logger, signalCh, agent)
 
 	ui.Output("Consul ESM running!")
 	if config.Datacenter == "" {
@@ -88,7 +90,7 @@ func main() {
 	}
 	ui.Info(fmt.Sprintf("               Service: %q", config.Service))
 	ui.Info(fmt.Sprintf("           Service Tag: %q", config.Tag))
-	ui.Info(fmt.Sprintf("            Service ID: %q", agent.serviceID()))
+	ui.Info(fmt.Sprintf("            Service ID: %q", agent.ServiceID()))
 	ui.Info(fmt.Sprintf("Node Reconnect Timeout: %q", config.NodeReconnectTimeout.String()))
 
 	ui.Info("")
@@ -103,7 +105,7 @@ func main() {
 	os.Exit(ExitCodeOK)
 }
 
-func handleSignals(logger *log.Logger, signalCh chan os.Signal, agent *Agent) {
+func handleSignals(logger *log.Logger, signalCh chan os.Signal, agent *monitor.Agent) {
 	for sig := range signalCh {
 		logger.Printf("[INFO] Caught signal: %s", sig.String())
 		switch sig {
