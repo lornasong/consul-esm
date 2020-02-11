@@ -10,9 +10,9 @@ import (
 
 	"github.com/lornasong/consul-esm/monitor"
 
-	"github.com/hashicorp/consul-esm/version"
 	"github.com/hashicorp/consul/command/flags"
 	"github.com/hashicorp/consul/logger"
+	"github.com/lornasong/consul-esm/version"
 	"github.com/mitchellh/cli"
 )
 
